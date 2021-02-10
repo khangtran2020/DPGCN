@@ -1,6 +1,6 @@
 import tensorflow as tf
 
-class GraphConv(tf.keras.Layer):
+class GraphConv(tf.keras.layers.Layer):
 
     def __init__(self, units=32, activation=None):
         super(GraphConv, self).__init__()
