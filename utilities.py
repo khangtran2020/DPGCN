@@ -31,7 +31,7 @@ def preprocess_data(feat_matrix, ls_edge, reindex = True):
     label = tf.keras.utils.to_categorical(label)
     feat_df.drop('label', axis=1,inplace=True)
     feat_df = feat_df.astype(int)
-    return feat_df, ls_edge_df, label
+    return feat_df.values, ls_edge_df, label
 
 def create_adjacency_matrix(list_edge_df):
     G=nx.from_pandas_edgelist(list_edge_df, list_edge_df.columns[0], list_edge_df.columns[-1])
@@ -46,3 +46,20 @@ def preprocess_adjacency_matrix(adjacency_matrix):
     degree_matrix = 1/np.sqrt(np.diag(degree))
     degree_matrix[degree_matrix==np.inf] = 0
     return degree_matrix*adjacency_matrix*degree_matrix
+
+def masking(feature_matrix, num_train, num_valid, num_test):
+    mask_tr = np.zeros(feature_matrix.shape[0])
+    mask_va = np.zeros(feature_matrix.shape[0])
+    mask_te = np.zeros(feature_matrix.shape[0])
+    for i in np.random.choice(feature_matrix.shape[0], num_train, replace=False):
+        mask_tr[i] = 1
+    for i in np.random.choice(feature_matrix.shape[0], num_valid, replace=False):
+        if (mask_tr[i] != 1):
+            mask_va[i] = 1
+    for i in np.random.choice(feature_matrix.shape[0], num_test, replace=False):
+        if (mask_tr[i] != 1) & (mask_va[i] != 1):
+            mask_te[i] = 1
+    mask_tr = mask_tr.astype(bool)
+    mask_va = mask_va.astype(bool)
+    mask_te = mask_te.astype(bool)
+    return mask_tr, mask_va, mask_te
